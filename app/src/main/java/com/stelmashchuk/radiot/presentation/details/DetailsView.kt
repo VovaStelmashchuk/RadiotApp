@@ -11,8 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.stelmashchuk.radiot.presentation.common.DetailsScreen
 import com.stelmashchuk.remark.feature.CommentWidget
 
 @Composable
@@ -30,11 +32,7 @@ private fun PodcastContent(podcastNumber: Long) {
 
   val podcast by viewModel.podcast.observeAsState()
   podcast?.let { episode ->
-    Scaffold(topBar = {
-      TopAppBar {
-        Text(text = episode.title, style = MaterialTheme.typography.h4)
-      }
-    }) {
+    DetailsScreen(name = episode.title) {
       Column(modifier = Modifier
           .padding(4.dp)
           .fillMaxWidth()

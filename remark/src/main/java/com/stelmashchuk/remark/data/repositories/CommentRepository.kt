@@ -23,18 +23,22 @@ class CommentRepository(
     private val voteRequestHandler: VoteRequestHandler = VoteRequestHandler(),
 ) {
 
-  private lateinit var cache: Comments
+  private var cache: Comments? = null
 
   suspend fun getComments(
       postUrl: String,
       sort: String = RemarkSettings.defaultSorting,
       format: String = "tree",
   ): Result<Comments> {
-    val result = Result.runCatching { remarkService.getComments(postUrl, sort, format) }
-    result.getOrNull()?.also {
-      cache = it
+    if (cache == null) {
+      val result = Result.runCatching { remarkService.getComments(postUrl, sort, format) }
+      result.getOrNull()?.also {
+        cache = it
+      }
+      return result
     }
-    return result
+
+    return Result.success(requireNotNull(cache))
   }
 
   @Suppress("ReturnCount")
@@ -43,14 +47,14 @@ class CommentRepository(
       postUrl: String,
       vote: VoteType,
   ): Result<Comments> {
-    if (!this::cache.isInitialized) {
+    if (cache == null) {
       return Result.failure(CacheNotValid())
     }
     if (!userStorage.getCredential().isValid()) {
       return Result.failure(NotAuthUser())
     }
     val voteResponse = Result.runCatching { remarkService.vote(commentId, postUrl, vote.backendCode) }
-    return voteRequestHandler.handleVoteResponse(cache.comments, voteResponse, vote)
+    return voteRequestHandler.handleVoteResponse(requireNotNull(cache).comments, voteResponse, vote)
   }
 }
 

@@ -28,7 +28,9 @@ fun StartScreen() {
           val currentRoute = navBackStackEntry?.destination?.route
           items.forEach { tab ->
             BottomNavigationItem(selected = currentRoute == tab.name, onClick = {
-              navController.navigate(tab.name)
+              navController.navigate(tab.name) {
+                launchSingleTop = true
+              }
             }, icon = {
               Icon(painter = painterResource(id = tab.icon), contentDescription = stringResource(id = tab.label))
             }, label = {
